@@ -7,8 +7,8 @@ import random
 # -----------------------------------------------------------------------
 
 # The bot's command prefix to use commands.
-client = commands.Bot(command_prefix='.')
-client.remove_command('help')
+client = commands.Bot(command_prefix=".")
+client.remove_command("help")
 
 # Prints in the console that shows that the bot is online and ready. It also changes the bot's online status and game.
 @client.event
