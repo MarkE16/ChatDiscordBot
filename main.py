@@ -41,21 +41,6 @@ async def on_command_error(ctx, error):
 	print(error)
 
 
-# Sends the about information of the bot.
-@client.command()
-@commands.cooldown(1, 10, commands.BucketType.user)
-async def about(ctx):
-	await ctx.channel.send(
-		"```\nCHAT BOT DISCORD BOT BY MARK E. (This is still in a w.i.p.)\n"
-		"[------------------------------------------------------------------------------]\n"
-		"This Discord bot was developed in discord.py.\n"
-		"[ What is this bot? ]\n"
-		"This bot is an interactive bot for... chatting! It also has utility commands.\n"
-		"[------------------------------------------------------------------------------]\n"
-		"© Mark E 2021, v 1.0.0```"
-	)
-
-
 # Sends the list of commands.
 @client.command()
 @commands.cooldown(1, 10, commands.BucketType.user)
@@ -65,7 +50,6 @@ async def help(ctx):
 		"<.> .help                   | Sends the list of commands.\n"
 		"<.> .ping                   | 'Pong!'\n"
 		"<.> .say <msg>              | Repeats your message.\n"
-		"<.> .about                  | Sends the about information.\n"
 		"<.> .mute <@user>           | Mutes a user.\n"
 		"<.> .unmute <@user>         | Unmutes a user.\n"
 		"<.> .tempmute <@user> <sec> | Temporarily mutes a user.\n"
