@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 import datetime
 import random
+from secrets import bot_token
 
 # -----------------------------------------------------------------------
 
@@ -272,18 +273,4 @@ async def remind(ctx, msg, s: int):
 # -----------------------------------------------------------------------
 
 # Run the bot...
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-client.run('ODM3MTM2Mjg1NDU3MzE3OTIw.YIoJ6w.imHz699pPTMLg40mCo27dr9hZg4')
+client.run(bot_token)
