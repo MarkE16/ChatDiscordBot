@@ -1,8 +1,6 @@
 import discord
 from discord.ext import commands
 import asyncio
-import datetime
-import random
 from secrets import bot_token
 import json
 
