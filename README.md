@@ -17,11 +17,11 @@ Currently, there are not much commands. However, there are still some to use tha
 .tempmute - Temporarily mutes a user.  
 .unmute - Unmutes a user.  
 .report - Reports a user to people with the Administrator role. (This currently doesn't work 100% at the moment! It sends the reports to me as of right now.)  
-.filterword - Adds a word to a list of words that you don't want allowed.
-.clearfilter - Clears your list of filtered words.
-.ban - Bans a user.
-.unban - Unbans a user.
-.remind - Will DM you a message that you want to remind yourself after the given time is up.
+.filterword - Adds a word to a list of words that you don't want allowed.  
+.clearfilter - Clears your list of filtered words.  
+.ban - Bans a user.  
+.unban - Unbans a user.  
+.remind - Will DM you a message that you want to remind yourself after the given time is up.  
 
 ## Add bot
 Link to add bot: Empty for the moment.
