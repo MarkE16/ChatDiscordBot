@@ -4,6 +4,13 @@ import asyncio
 import datetime
 import random
 from secrets import bot_token
+import json
+
+def save(data):
+	json.dump(data, open("main.py", "w"))
+
+def load(data):
+	data = json.load(open("main.py", "r"))
 
 # -----------------------------------------------------------------------
 
@@ -14,24 +21,27 @@ client.remove_command("help")
 # Prints in the console that shows that the bot is online and ready. It also changes the bot's online status and game.
 @client.event
 async def on_ready():
-	await client.change_presence(status=discord.Status.idle, activity=discord.Game("Please wait as I'm being programmed!"))
 	print("Bot READY.")
-
 
 filtered_words = []
 
+try:
+	load(filtered_words)
+except:
+	print("[!] Failed to load filtered words.")
 
 @client.event
 async def on_message(message):
 	global filtered_words
+	if message.author == client.user:
+		return
 
 	for w in filtered_words:
 		if w in message.content:
 			await message.delete()
 	await client.process_commands(message)
 
-
-# Responds to the user with an error if the command they entered does not currently exist.
+# Responds to the user with an error if the command they entered does not currently exist or is on cooldown.
 @client.event
 async def on_command_error(ctx, error):
 	if isinstance(error, commands.CommandNotFound):
@@ -47,14 +57,17 @@ async def on_command_error(ctx, error):
 async def help(ctx):
 	await ctx.channel.send(
 		"```\nCOMMANDS\n-----------------------------\n"
-		"<.> .help                   | Sends the list of commands.\n"
-		"<.> .ping                   | 'Pong!'\n"
-		"<.> .say <msg>              | Repeats your message.\n"
-		"<.> .mute <@user>           | Mutes a user.\n"
-		"<.> .unmute <@user>         | Unmutes a user.\n"
-		"<.> .tempmute <@user> <sec> | Temporarily mutes a user.\n"
-		"<.> .report <@user>         | Reports a user.\n"
-		"<.> .filterword <word>      | Adds a word to a list of words that you do not want allowed.```"
+		"<.> .help                         | Sends the list of commands.\n"
+		"<.> .ping                         | 'Pong!'\n"
+		"<.> .say <msg>                    | Repeats your message.\n"
+		"<.> .mute <@user>                 | Mutes a user.\n"
+		"<.> .unmute <@user>               | Unmutes a user.\n"
+		"<.> .tempmute <@user> <sec> <rsn> | Temporarily mutes a user.\n"
+		"<.> .report <@user> <rsn>         | Reports a user.\n"
+		"<.> .filterword <word>            | Adds a word to a list of words that you do not want allowed.\n"
+		"<.> .ban <@user> <rsn>            | Bans a user.\n"
+		"<.> .unban <@user>                | Unbans a user.\n"
+		"<.> .remind <sec> <msg>           | Sends a DM to you when the given duration is up with your message that you assigned.```"
 	)
 
 
@@ -114,13 +127,10 @@ async def mute(ctx, member, *, reason="No reason specified"):
 # Sends an error if the user doesn't pass in a required argument or has missing permissions.
 @mute.error
 async def mute_error(ctx, error):
-	#if isinstance()
 	if isinstance(error, commands.MissingRequiredArgument):
-		await ctx.channel.send(":warning: Missing required argument(s). Syntax: `.mute [user] [reason]`.")
+		await ctx.channel.send(":warning: Missing required argument(s). Syntax: `.mute <@user> <reason>`.")
 	elif isinstance(error, commands.MissingPermissions):
 		await ctx.channel.send(":x: You do not have the `Manage Messages` permission.")
-	elif isinstance(error, commands.MissingRole):
-		await ctx.channel.send(":x: No role to give.")  # Doesn't work at the moment.
 	print(error)
 
 
@@ -148,7 +158,7 @@ async def unmute(ctx, member):
 @unmute.error
 async def unmute_error(ctx, error):
 	if isinstance(error, commands.MissingRequiredArgument):
-		await ctx.channel.send(":warning: Missing required argument: `user`. Syntax: `.unmute [user]`.")
+		await ctx.channel.send(":warning: Missing required argument: `@user`. Syntax: `.unmute <@user/id>`.")
 	elif isinstance(error, commands.MissingPermissions):
 		await ctx.channel.send(":x: You do not have the `Manage Messages` permission.")
 
@@ -180,6 +190,11 @@ async def tempmute(ctx, member, sec: int, *, reason="No reason specified"):
 			await ctx.channel.send(f":white_check_mark: Successfully muted {user} for {sec}s for the reason: '{reason}'.")
 			await asyncio.sleep(sec)
 			await user.remove_roles(role)
+
+@tempmute.error
+async def tempmute_error(ctx, error):
+	if isinstance(error, commands.MissingRequiredArgument):
+		await ctx.channel.send(":warning: Missing required argument(s) Syntax: `.tempmute <@user/id> <dur:sec> <reason>`")
 
 
 # When used, this will send the report to the RECEIVER (aka me!).
@@ -214,8 +229,13 @@ async def filterword(ctx, word):
 			return
 	filtered_words.append(word)
 	await ctx.channel.send(":white_check_mark: Word filtered. When a message has this word, the message will be deleted.")
+	save(filtered_words)
 	print(filtered_words)
 
+@filterword.error
+async def filterword_error(ctx, error):
+	if isinstance(error, commands.MissingRequiredArgument):
+		await ctx.channel.send(":warning: Missing required argument: `word`. Syntax: `.filterword <word>`")
 
 # Bans a user.
 @client.command()
@@ -227,6 +247,11 @@ async def ban(ctx, member, *, reason=None):
 	await user.ban(reason=reason)
 	await ctx.channel.send(f":white_check_mark: Successfully banned {user} for {reason}.")
 	print(banned_users)
+
+@ban.error
+async def ban_error(ctx, error):
+	if isinstance(error, commands.MissingRequiredArgument):
+		await ctx.channel.send(":warning: Missing required argument(s) Syntax: `.ban <@user> <reason>`")
 
 
 # Unbans a user.
@@ -243,16 +268,27 @@ async def unban(ctx, *, member):
 			await ctx.guild.unban(user)
 			await ctx.channel.send(f":white_check_mark: Successfully unbanned {user.name}.")
 
+@unban.error
+async def unban_error(ctx, error):
+	if isinstance(error, commands.MissingRequiredArgument):
+		await ctx.channel.send(":warning: Missing required argument: `@user/id`. Syntax: `.unban <@user/id>`")
+
 
 @client.command()
 @commands.cooldown(1, 10, commands.BucketType.user)
-async def remind(ctx, msg, s: int):
-	#user = ctx.message.mentions[0]
+async def remind(ctx, s: int, *, msg):
+	user = ctx.message.author.id
+	sender = await client.fetch_user(user)
 
 	await ctx.channel.send(":white_check_mark: Reminder set.")
 	await asyncio.sleep(s)
-	await ctx.channel.send(f":exclamation: {msg.author}, you have an incoming reminder: {msg}")
+	await discord.DMChannel.send(sender, f":exclamation: {ctx.author.name}, you have an incoming reminder: {msg}")
 
+
+@remind.error
+async def remind_error(ctx, error):
+	if isinstance(error, commands.MissingRequiredArgument):
+		await ctx.channel.send(":warning: Missing required argument(s) Syntax: `.remind <dur:sec> <msg>")
 
 # -----------------------------------------------------------------------
 
