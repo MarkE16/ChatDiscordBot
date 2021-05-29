@@ -319,6 +319,8 @@ async def playnums(ctx):
 			await ctx.channel.send(f":white_check_mark: Aww. I guess you win! My number was: {num}")
 	except:
 		await ctx.channel.send(":x: You didn't enter a number... :( We can try again next time when you enter a number!")
+
+# Hi from the secondary branch!
 # -----------------------------------------------------------------------
 
 # Run the bot...
