@@ -195,7 +195,6 @@ async def tempmute_error(ctx, error):
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def report(ctx, member: discord.Member, *, reason):
 	receiver = await client.fetch_user(371802974470668321)
-	#user = ctx.message.mentions[0]
 	reports = []
 	if member == receiver:
 		await ctx.channel.send(":x: This user cannot be reported. Try someone else.")
