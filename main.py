@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 from secrets import bot_token
 import json
+import random
 
 # -----------------------------------------------------------------------
 
@@ -61,7 +62,8 @@ async def help(ctx):
 		"<.> .clearfilter                  | Will clear your list of filtered words.\n"
 		"<.> .ban <@user> <rsn>            | Bans a user.\n"
 		"<.> .unban <user#0000>            | Unbans a user.\n"
-		"<.> .remind <sec> <msg>           | Sends a DM to you when the given duration is up with your message that you assigned.```"
+		"<.> .remind <sec> <msg>           | Sends a DM to you when the given duration is up with your message that you assigned.\n"
+		"<.> .playnums                     | Play a number guessing game with the bot!```"
 	)
 
 
@@ -297,6 +299,27 @@ async def remind_error(ctx, error):
 	if isinstance(error, commands.MissingRequiredArgument):
 		await ctx.channel.send(":warning: Missing required argument(s) Syntax: `.remind <dur:sec> <msg>`")
 
+
+@client.command()
+@commands.cooldown(1, 5, commands.BucketType.user)
+async def playnums(ctx):
+	await ctx.channel.send("<...> Type a number 1-10.")
+	def check(m):
+		return m.author.id == ctx.author.id
+	
+	message = await client.wait_for("message", check=check)
+	num = random.randint(1, 10)
+	try:
+		guess = int(message.content)
+		if guess > 10:
+			await ctx.channel.send(":x: That number is too high!")
+			return
+		if guess != num:
+			await ctx.channel.send(f":x: Ops! You lose! My number was: {num}")
+		else:
+			await ctx.channel.send(f":white_check_mark: Aww. I guess you win! My number was: {num}")
+	except:
+		await ctx.channel.send(":x: You didn't enter a number... :( We can try again next time when you enter a number!")
 # -----------------------------------------------------------------------
 
 # Run the bot...

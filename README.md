@@ -22,6 +22,7 @@ Currently, there are not much commands. However, there are still some to use tha
 .ban - Bans a user.  
 .unban - Unbans a user.  
 .remind - Will DM you a message that you want to remind yourself after the given time is up.  
+.playnums - Play a number guessing game.
 
 ## Add bot
 Link to add bot: Empty for the moment.
