@@ -17,9 +17,10 @@ async def on_ready():
 	print("Bot READY.")
 
 filtered_words = []
+reports = []
 
 try:
-	filtered_words = json.load(open("words.py", "r"))
+	filtered_words, reports = json.load(open("wordsandreports.py", "r"))
 	print("<.> Filtered words successfully loaded.")
 except:
 	print("[!] Failed to load filtered words.")
@@ -58,6 +59,7 @@ async def help(ctx):
 		"<.> .unmute <@user>               | Unmutes a user.\n"
 		"<.> .tempmute <@user> <sec> <rsn> | Temporarily mutes a user.\n"
 		"<.> .report <@user> <rsn>         | Reports a user.\n"
+		"<.> .clearreports                 | Will clear your list of reported users.\n"
 		"<.> .filterword <word>            | Adds a word to a list of words that you do not want allowed.\n"
 		"<.> .clearfilter                  | Will clear your list of filtered words.\n"
 		"<.> .ban <@user> <rsn>            | Bans a user.\n"
@@ -195,14 +197,32 @@ async def tempmute_error(ctx, error):
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def report(ctx, member: discord.Member, *, reason):
 	receiver = await client.fetch_user(371802974470668321)
-	reports = []
+	#user = ctx.message.mentions[0]
+
 	if member == receiver:
 		await ctx.channel.send(":x: This user cannot be reported. Try someone else.")
 	else:
-		reports.append(member)
+		reported = str(member)
+		reports.append(reported)
+		json.dump((filtered_words, reports), open("wordsandreports.py", "w"))
 		await discord.DMChannel.send(receiver, f"New Report!```\nUser: {member}\nReason: {reason}\nReport #{len(reports)}```")
 		await ctx.channel.send(":white_check_mark: Report sent!")
 
+
+@client.command()
+@commands.cooldown(1, 10, commands.BucketType.user)
+async def clearreports(ctx):
+	await ctx.channel.send(f"List of reports: {reports}\n Are you sure you want to clear your report list? (y/n/yes/no)")
+	def check(m):
+		return m.author.id == ctx.author.id
+	message = await client.wait_for("message", check=check)
+	if message.content.lower() == "y" or message.content.lower() == "yes":
+		reports.clear()
+		json.dump((filtered_words, reports), open("wordsandreports.py", "w"))
+		await ctx.channel.send(":white_check_mark: Clear successful.")
+	else:
+		await ctx.channel.send(":x: Did not clear.")
+		return
 
 @report.error
 async def report_error(ctx, error):
@@ -215,13 +235,14 @@ async def report_error(ctx, error):
 @commands.cooldown(1, 5, commands.BucketType.user)
 @commands.has_permissions(manage_messages=True)
 async def filterword(ctx, word):
+	global reports
 
 	for w in filtered_words:
 		if w == word:
 			await ctx.channel.send(":x: This word is already filtered.")
 			return
 	filtered_words.append(word)
-	json.dump(filtered_words, open("words.py", "w"))
+	json.dump((filtered_words, reports), open("wordsandreports.py", "w"))
 	await ctx.channel.send(":white_check_mark: Word filtered. When a message has this word, the message will be deleted.")
 	print(filtered_words)
 
@@ -240,7 +261,7 @@ async def clearfilter(ctx):
 	message = await client.wait_for("message", check=check)
 	if message.content.lower() == "y" or message.content.lower() == "yes":
 		filtered_words.clear()
-		json.dump(filtered_words, open("words.py", "w"))
+		json.dump((filtered_words, reports), open("wordsandreports.py", "w"))
 		await ctx.channel.send(":white_check_mark: Clear successful.")
 	else:
 		await ctx.channel.send(":x: Did not clear.")
@@ -320,7 +341,6 @@ async def playnums(ctx):
 	except:
 		await ctx.channel.send(":x: You didn't enter a number... :( We can try again next time when you enter a number!")
 
-# Hi from the secondary branch!
 # -----------------------------------------------------------------------
 
 # Run the bot...
