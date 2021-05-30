@@ -17,7 +17,7 @@ Currently, there are not much commands. However, there are still some to use tha
 **.tempmute** - Temporarily mutes a user.  
 **.unmute** - Unmutes a user.  
 **.report** - Reports a user to people with the Administrator role. (This currently doesn't work 100% at the moment! It sends the reports to me as of right now.)  
-**.clearreports** - Clears your list of reported users.
+**.clearreports** - Clears your list of reported users.  
 **.filterword** - Adds a word to a list of words that you don't want allowed.  
 **.clearfilter** - Clears your list of filtered words.  
 **.ban** - Bans a user.  
